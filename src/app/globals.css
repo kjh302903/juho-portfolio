@@ -26,11 +26,17 @@ body {
 }
 
 @theme {
-  --animate-blink: blink 0.8s infinite;
+  --animate-blink: blink 1s step-end infinite;
 
   @keyframes blink {
+    0% {
+      opacity: 0;
+    }
     50% {
-      border-color: transparent;
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
     }
   }
 }

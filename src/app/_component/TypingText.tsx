@@ -4,31 +4,60 @@ import React, { useEffect, useState } from "react";
 
 interface Props {
   text: string;
+  typingSpeed: number;
+  startDelay: number;
+  style: string;
+  isLastLine: boolean;
 }
 
-const TypingText = ({ text }: Props) => {
+const TypingText = ({
+  text,
+  typingSpeed,
+  startDelay,
+  style,
+  isLastLine,
+}: Props) => {
   const [displayed, setDisplayed] = useState("");
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(-1);
+  const [isTypingDone, setIsTypingDone] = useState(false);
 
   useEffect(() => {
-    if (index >= text.length) return;
+    const startTimer = setTimeout(() => {
+      setIndex(0); // 타이핑 시작
+    }, startDelay);
+
+    return () => clearTimeout(startTimer);
+  }, [startDelay]);
+
+  useEffect(() => {
+    if (index < 0 || index >= text.length) return;
 
     const timeout = setTimeout(() => {
       setDisplayed((prev) => prev + text[index]);
       setIndex(index + 1);
-    }, 80);
+    }, typingSpeed);
+
+    if (index === text.length - 1) {
+      setTimeout(() => {
+        setIsTypingDone(true);
+      }, 80); // 마지막 글자 이후 isTypingDone = true
+    }
 
     return () => clearTimeout(timeout);
   }, [index, text]);
 
+  const showCursor = index >= 0 && (!isTypingDone || isLastLine); // 아직 타이핑 중이거나 마지막 줄이면 커서 보임
+
   return (
-    <div
-      className="relative z-10 whitespace-nowrap overflow-hidden text-white text-5xl
-      after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full 
-      after:border-r-4 after:border-white after:animate-blink"
+    <p
+      className={`relative z-10 whitespace-nowrap overflow-hidden
+      ${style}`}
     >
       {displayed}
-    </div>
+      {showCursor && (
+        <span className="inline-block w-[2px] h-[1.1em] bg-white animate-blink ml-[1px] translate-y-[3px]" />
+      )}
+    </p>
   );
 };
 
